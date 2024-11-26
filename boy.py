@@ -185,6 +185,7 @@ class Boy:
     def __init__(self):
         self.frame = 0
         self.action = 3
+        self.ball_count = 0
         self.image = load_image('animation_sheet.png')
         self.font = load_font('ENCR10B.TTF', 24)
         self.state_machine = StateMachine(self)
@@ -220,25 +221,29 @@ class Boy:
         # self.y = clamp(25.0, self.y, get_canvas_height()-25.0)
 
         # 월드 좌표 관점의 상하좌우 제한
-        # self.x = clamp(25.0, self.x, server.background.w-25.0)
-        # self.y = clamp(25.0, self.y, server.background.h-25.0)
+        self.x = clamp(25.0, self.x, server.background.w-25.0)
+        self.y = clamp(25.0, self.y, server.background.h-25.0)
 
     def handle_event(self, event):
         self.state_machine.handle_event(('INPUT', event))
 
     def draw(self):
-        # sx = self.x - server.background.window_left
-        # sy = self.y - server.background.window_bottom
-        sx, sy = get_canvas_width() // 2, get_canvas_height() // 2
+        sx = self.x - server.background.window_left
+        sy = self.y - server.background.window_bottom
+        
         self.image.clip_draw(int(self.frame) * 100, self.action * 100, 100, 100, sx, sy)
         self.font.draw(int(sx - 100), int(sy + 60), f'({self.x:5.5}, {self.y:5.5})', (255, 255, 0))
-
+        self.font.draw(int(sx - 20), int(sy + 80), f'({self.ball_count})', (255, 0, 0))
+        draw_rectangle(*self.get_bb())
 
     def get_bb(self):
-        return self.x - 20, self.y - 50, self.x + 20, self.y + 50
+        sx = self.x - server.background.window_left
+        sy = self.y - server.background.window_bottom
+        return sx - 20, sy - 50, sx + 20, sy + 50
 
     def handle_collision(self, group, other):
-        pass
+        if group == 'boy:ball':
+            self.ball_count += 1
 
 
 
